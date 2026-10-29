@@ -1,4 +1,4 @@
 package io.github.sabo2560.bank.model;
 
-public class Account {
+public abstract class Account {
 }

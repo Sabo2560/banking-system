@@ -1,4 +1,6 @@
 package io.github.sabo2560.bank.model;
 
-public class InterestBearing {
+public interface InterestBearing {
+    double getInterestRate();
+    void applyInterest();
 }
