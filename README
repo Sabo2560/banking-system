@@ -1,0 +1,72 @@
+# Banking System
+
+## Description
+
+A console banking application written in Java. Users can open savings and checking
+accounts, deposit, withdraw and transfer money, apply interest to savings accounts,
+and view reports. All data is kept in memory and is lost when the application exits.
+
+This project is a practice exercise covering OOP, collections, exceptions, Maven,
+configuration files and a Git pull request workflow.
+
+## Requirements
+
+- JDK 27
+- Apache Maven 3.9 or newer, available on the PATH
+
+## How to build
+
+From the project root:
+
+    mvn clean package
+
+The build is successful when Maven prints `BUILD SUCCESS`.
+
+## How to run
+
+Build first, then:
+
+    java -cp target/classes io.github.sabo2560.bank.App
+
+Alternatively, open the project in IntelliJ IDEA and run the `App` class.
+
+## Configuration
+
+Settings are read from `src/main/resources/config.properties`:
+
+| Key | Purpose |
+| --- | --- |
+| `bank.name` | Name shown in the menu header |
+| `savings.interest.rate` | Interest rate applied to savings accounts |
+| `savings.minimum.balance` | Minimum balance a savings account must keep |
+| `checking.overdraft.limit` | How far below zero a checking account may go |
+
+## Exceptions
+
+| Exception | Type | Thrown when |
+| --- | --- | --- |
+| `InsufficientFundsException` | Checked | A withdrawal or transfer exceeds the available amount |
+| `AccountNotFoundException` | Unchecked | An account number does not exist |
+| `ConfigException` | Unchecked | The config file or a key is missing, or a value is invalid |
+
+Invalid amounts (zero or negative) and blank owner names use the built-in
+`IllegalArgumentException`.
+
+### Why checked vs unchecked
+
+`InsufficientFundsException` is checked because running out of money is a normal
+business situation. It can happen even when all code is correct, and the caller
+can react to it, for example by showing a message and letting the user try a smaller
+amount. Making it checked forces every caller to handle it, so it cannot be forgotten.
+
+`AccountNotFoundException` is unchecked because an unknown account number comes from
+invalid input, not from a business rule. It indicates the input was not valid, and
+forcing try/catch around every account lookup would add noise to the code without
+helping. The console layer still catches it to show a friendly message.
+
+`ConfigException` is unchecked because a broken configuration is a setup error the
+program cannot recover from; the application stops at startup with a clear message.
+
+## Decisions
+
+Document here any choice you made where the spec was not specific.
