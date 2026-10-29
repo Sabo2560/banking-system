@@ -46,7 +46,6 @@ public abstract class Account {
         return balance;
     }
 
-    //PART 2A
     protected abstract double getAvailableToWithdraw();
 
     public abstract String getAccountType();
@@ -81,7 +80,6 @@ public abstract class Account {
         }
         transactions.add(new Transaction(type, amount, balance));
     }
-    //PART 2B
 
     public void transferTo(Account target, double amount) throws InsufficientFundsException {
         if (target == null || target == this) {
@@ -108,4 +106,6 @@ public abstract class Account {
         return String.format(Locale.US, "%s | %s | %s | %.2f", accountNumber, getAccountType(), ownerName, balance);
 
     }
+
+
 }
