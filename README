@@ -70,3 +70,5 @@ program cannot recover from; the application stops at startup with a clear messa
 ## Decisions
 
 Document here any choice you made where the spec was not specific.
+
+add a line noting that a savings account rejected for a low initial deposit still uses up an account number.
