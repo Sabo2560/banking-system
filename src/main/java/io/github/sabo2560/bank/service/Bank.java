@@ -2,13 +2,11 @@ package io.github.sabo2560.bank.service;
 
 import io.github.sabo2560.bank.config.ConfigReader;
 import io.github.sabo2560.bank.exception.InsufficientFundsException;
-import io.github.sabo2560.bank.model.Account;
-import io.github.sabo2560.bank.model.CheckingAccount;
-import io.github.sabo2560.bank.model.InterestBearing;
-import io.github.sabo2560.bank.model.SavingsAccount;
+import io.github.sabo2560.bank.model.*;
 import io.github.sabo2560.bank.exception.AccountNotFoundException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Bank {
 
@@ -86,4 +84,38 @@ public class Bank {
         list.sort(Comparator.comparing(Account::getAccountNumber));
         return list;
     }
+
+    public List<Account> getAccountsBelow(double threshold) {
+        List<Account> collectedList = accounts.values().stream()
+                .filter(a -> a.getBalance() < threshold)
+                .sorted(Comparator.comparing(Account::getBalance))
+                .collect(Collectors.toList());
+        return collectedList;
+    }
+
+    public double getTotalBalance() {
+        return accounts.values().stream()
+                .mapToDouble(Account::getBalance)
+                .sum();
+    }
+
+    public List<Transaction> getTransactions(String number, TransactionType type) {
+        return findAccount(number).getTransactions().stream().filter(t -> t.getType() == type).toList();
+    }
+
+    public List<String> getOwnerNames() {
+        return accounts.values().stream()
+                .map(Account::getOwnerName)
+                .distinct()
+                .sorted()
+                .toList();
+    }
+
+    public double getTotalDeposited(String number) {
+        return findAccount(number).getTransactions().stream()
+                .filter(t -> t.getType() == TransactionType.DEPOSIT || t.getType() == TransactionType.TRANSFER_IN)
+                .mapToDouble(Transaction::getAmount)
+                .sum();
+    }
+
 }
