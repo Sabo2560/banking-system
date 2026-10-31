@@ -17,12 +17,15 @@ class SavingsAccountTest {
         // Assert
         assertEquals(1000.0, account.getBalance(), 0.001);
         assertEquals(1, account.getTransactions().size());
-        assertEquals(TransactionType.DEPOSIT, account.getTransactions().get(0).getType());
+        assertEquals(TransactionType.DEPOSIT,
+                account.getTransactions().getFirst().getType());
         assertTrue(account.getAccountNumber().startsWith("ACC-"));
     }
     @Test
     void openingBelowMinimumIsRejected(){
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new SavingsAccount("SAVBA",50));
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> new SavingsAccount("SAVBA",50));
+
         assertEquals("Initial deposit must be at least 100.00",e.getMessage());
     }
 
@@ -30,7 +33,9 @@ class SavingsAccountTest {
     void depositOfZeroOrNegativeIsRejected(){
         SavingsAccount acc = new SavingsAccount("SABSAV", 1000);
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> acc.deposit( 0));
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                ()-> acc.deposit( 0));
+
         assertEquals("Deposit amount must be greater than 0" , e.getMessage());
         assertEquals(1000,acc.getBalance(),0.001);
 
