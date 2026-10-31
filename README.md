@@ -32,7 +32,11 @@ From the project root:
 
     mvn clean package
 
-The build is successful when Maven prints `BUILD SUCCESS`.
+The build is successful when Maven prints `BUILD SUCCESS`
+
+From Terminal : 
+    mvn test
+The Test Should Show Coverage accordignly.
 
 ## How to run
 
@@ -134,6 +138,9 @@ configuration:
 | 14 | Non-numeric input | Error message, menu shown again |
 | 15 | Missing config key | Configuration error, exit code 1 |
 
+
+As of this update the scenarios 1 to 13 are automated with JUnit and run with mvn test (14 and 15 are console behavior, still checked manually).
+
 ## Development workflow
 
 Each feature was developed on its own branch (`feature/BANK-<n>-<name>`) and merged
@@ -154,3 +161,4 @@ Choices made where the specification was not specific:
 - **Number formatting**: all amounts are formatted with `Locale.US` so decimals always
   use a dot, regardless of the system's regional settings.
 - **Transaction types in reports**: the type is entered as text and is not case-sensitive.
+- **Test Runner update : JUnit 6 is used instead of JUnit 5 (the successor, same API).

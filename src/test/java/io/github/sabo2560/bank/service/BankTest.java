@@ -3,10 +3,14 @@ package io.github.sabo2560.bank.service;
 import io.github.sabo2560.bank.exception.AccountNotFoundException;
 import io.github.sabo2560.bank.exception.InsufficientFundsException;
 import io.github.sabo2560.bank.model.Account;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
+
 
 class BankTest {
 
@@ -21,7 +25,6 @@ class BankTest {
         checking = bank.openCheckingAccount("Amine", 200);
     }
 
-    // tests use bank, savings, checking
 
     @Test
     void findingUnknownAccountThrows() {
@@ -48,30 +51,31 @@ class BankTest {
 
     @Test
     void transferToUnknownAccountChangesNothing() {
-        //same shape with AccountNotFoundException and "ACC-9999" as the target, then check savings is still 1000
         AccountNotFoundException e = assertThrows(AccountNotFoundException.class,
                 () -> bank.transfer(savings.getAccountNumber(), "ACC-9999", 500));
         assertEquals("Account not found: ACC-9999", e.getMessage());
         assertEquals(1000, savings.getBalance(), 0.001);
-
     }
 
     @Test
     void accountsBelowReturnsOnlyMatchingAccounts() {
+        assertEquals(List.of(checking), bank.getAccountsBelow(500));
     }
 
     @Test
     void totalBalanceSumsAllAccounts() {
-
+        assertEquals(1200.0, bank.getTotalBalance(), 0.001);
     }
 
     @Test
-    void ownerNamesAreDistinctAndSorted(){
-
+    void ownerNamesAreDistinctAndSorted() {
+        bank.openCheckingAccount("Sabo", 50);
+        assertEquals(List.of("Amine", "Sabo"), bank.getOwnerNames());
     }
 
     @Test
-    void totalDepositedIncludesTransfersIn(){
-
+    void totalDepositedIncludesTransfersIn() throws InsufficientFundsException {
+        bank.transfer(savings.getAccountNumber(), checking.getAccountNumber(), 300);
+        assertEquals(500, bank.getTotalDeposited(checking.getAccountNumber()), 0.001);
     }
 }
