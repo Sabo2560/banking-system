@@ -2,6 +2,7 @@ package io.github.sabo2560.bank.service;
 
 import io.github.sabo2560.bank.config.ConfigReader;
 import io.github.sabo2560.bank.exception.InsufficientFundsException;
+import io.github.sabo2560.bank.exception.TooManyAccountsException;
 import io.github.sabo2560.bank.model.*;
 import io.github.sabo2560.bank.exception.AccountNotFoundException;
 
@@ -18,12 +19,14 @@ public class Bank {
     }
 
     public Account openSavingsAccount(String owner, double initialDeposit) {
+        checkAccountLimit(owner);
         SavingsAccount savingAccount = new SavingsAccount(owner, initialDeposit);
         accounts.put(savingAccount.getAccountNumber(), savingAccount);
         return savingAccount;
     }
 
     public Account openCheckingAccount(String owner, double initialDeposit) {
+        checkAccountLimit(owner);
         CheckingAccount checkingAccount = new CheckingAccount(owner, initialDeposit);
         accounts.put(checkingAccount.getAccountNumber(), checkingAccount);
         return checkingAccount;
@@ -116,6 +119,16 @@ public class Bank {
                 .filter(t -> t.getType() == TransactionType.DEPOSIT || t.getType() == TransactionType.TRANSFER_IN)
                 .mapToDouble(Transaction::getAmount)
                 .sum();
+    }
+    private void checkAccountLimit(String owner) {
+        int limit =  ConfigReader.getInt("max.accounts.per.owner");
+        long count = accounts.values().stream()
+                .filter(a->a.getOwnerName().equals(owner))
+                .count();
+        if (count >= limit) {
+            throw new TooManyAccountsException(owner,limit);
+        }
+
     }
 
 }

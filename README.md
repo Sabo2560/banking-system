@@ -50,12 +50,13 @@ Alternatively, open the project in IntelliJ IDEA and run the `App` class.
 
 Settings are read from `src/main/resources/config.properties`:
 
-| Key | Default | Purpose |
-| --- | --- | --- |
-| `bank.name` | `Sabo Bank` | Name shown in the menu header |
-| `savings.interest.rate` | `0.03` | Interest rate applied to savings accounts (0.03 = 3%) |
-| `savings.minimum.balance` | `100.0` | Minimum balance a savings account must keep |
-| `checking.overdraft.limit` | `500.0` | How far below zero a checking account may go |
+| Key                          | Default     | Purpose                                               |
+|------------------------------|-------------|-------------------------------------------------------|
+| `bank.name`                  | `Sabo Bank` | Name shown in the menu header                         |
+| `savings.interest.rate`      | `0.03`      | Interest rate applied to savings accounts (0.03 = 3%) |
+| `savings.minimum.balance`    | `100.0`     | Minimum balance a savings account must keep           |
+| `checking.overdraft.limit`   | `500.0`     | How far below zero a checking account may go          |
+| `max.accounts.perl.owner`    | `3`         | max accounts limit per owner                          |
 
 If the file or a key is missing, or a value is not a number, the application prints
 a configuration error naming the problem and exits with code 1.
@@ -91,11 +92,13 @@ Design rules:
 
 ## Exceptions
 
-| Exception | Type | Thrown when |
-| --- | --- | --- |
-| `InsufficientFundsException` | Checked | A withdrawal or transfer exceeds the available amount |
-| `AccountNotFoundException` | Unchecked | An account number does not exist |
-| `ConfigException` | Unchecked | The config file or a key is missing, or a value is invalid |
+| Exception                    | Type      | Thrown when                                                |
+|------------------------------|-----------|------------------------------------------------------------|
+| `InsufficientFundsException` | Checked   | A withdrawal or transfer exceeds the available amount      |
+| `AccountNotFoundException`   | Unchecked | An account number does not exist                           |
+| `ConfigException`            | Unchecked | The config file or a key is missing, or a value is invalid |
+| TooManyAccountsException     | Unchecked | config max limit accounts per owner                        |
+
 
 Invalid amounts (zero or negative), blank owner names and non-numeric input use the
 built-in `IllegalArgumentException` (and its subclass `NumberFormatException`).
@@ -161,4 +164,5 @@ Choices made where the specification was not specific:
 - **Number formatting**: all amounts are formatted with `Locale.US` so decimals always
   use a dot, regardless of the system's regional settings.
 - **Transaction types in reports**: the type is entered as text and is not case-sensitive.
-- **Test Runner update : JUnit 6 is used instead of JUnit 5 (the successor, same API).
+- **Test Runner update **: JUnit 6 is used instead of JUnit 5 (the successor, same API).
+- **case sensitive validation for owner name is set to equals for now **

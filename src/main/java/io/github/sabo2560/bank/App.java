@@ -3,6 +3,7 @@ package io.github.sabo2560.bank;
 import io.github.sabo2560.bank.exception.AccountNotFoundException;
 import io.github.sabo2560.bank.exception.ConfigException;
 import io.github.sabo2560.bank.exception.InsufficientFundsException;
+import io.github.sabo2560.bank.exception.TooManyAccountsException;
 import io.github.sabo2560.bank.model.Account;
 import io.github.sabo2560.bank.model.Transaction;
 import io.github.sabo2560.bank.model.TransactionType;
@@ -44,7 +45,7 @@ public class App {
                     }
                 } catch (NumberFormatException e) {
                     System.out.println("Error: please enter a valid number");
-                } catch (AccountNotFoundException | IllegalArgumentException | InsufficientFundsException e) {
+                } catch (AccountNotFoundException | TooManyAccountsException | IllegalArgumentException | InsufficientFundsException e) {
                     System.out.println("Error: " + e.getMessage());
                 } finally {
                     System.out.println("--------------------");
@@ -87,6 +88,7 @@ public class App {
     private static void openChecking(Bank bank, Scanner scanner) {
         String owner = readText(scanner, "Owner name: ");
         double deposit = readAmount(scanner, "Amount to Deposit: ");
+
         Account checkingOpened = bank.openCheckingAccount(owner, deposit);
         System.out.println("Opened: " + checkingOpened);
     }

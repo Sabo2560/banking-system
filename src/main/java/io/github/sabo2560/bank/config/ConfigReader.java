@@ -21,6 +21,7 @@ public class ConfigReader {
     }
 
     private ConfigReader() {
+
     }
 
     public static String get(String key){
@@ -40,6 +41,13 @@ public class ConfigReader {
         } catch (NumberFormatException e) {
             throw new ConfigException("Config value for " + key + " is not a number: " + text, e);
         }
-
+    }
+    public static int getInt(String key) {
+        String text = get(key);
+        try {
+            return Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            throw new ConfigException("Config value for " + key + " is not a whole number: " + text, e);
+        }
     }
 }
