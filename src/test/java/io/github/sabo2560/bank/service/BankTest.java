@@ -2,6 +2,7 @@ package io.github.sabo2560.bank.service;
 
 import io.github.sabo2560.bank.exception.AccountNotFoundException;
 import io.github.sabo2560.bank.exception.InsufficientFundsException;
+import io.github.sabo2560.bank.exception.TooManyAccountsException;
 import io.github.sabo2560.bank.model.Account;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -77,5 +78,38 @@ class BankTest {
     void totalDepositedIncludesTransfersIn() throws InsufficientFundsException {
         bank.transfer(savings.getAccountNumber(), checking.getAccountNumber(), 300);
         assertEquals(500, bank.getTotalDeposited(checking.getAccountNumber()), 0.001);
+    }
+
+    @Test
+    void ownerCanOpenUpToTheLimit() {
+
+        bank.openSavingsAccount("Sabo", 500);
+        bank.openCheckingAccount("Sabo",500);
+
+        assertEquals(4,bank.getAllAccounts().size());
+    }
+
+    @Test
+    void openingBeyondTheLimitIsRejected() {
+
+        bank.openSavingsAccount("Sabo",500);
+        bank.openCheckingAccount("Sabo",500);
+
+        TooManyAccountsException e = assertThrows(TooManyAccountsException.class,
+                () -> bank.openCheckingAccount("Sabo",500));
+
+       assertEquals("Sabo already has a maximum of 3 accounts", e.getMessage());
+    }
+
+    @Test
+    void rejectedAccountIsNotStored() {
+
+        bank.openSavingsAccount("Sabo",500);
+        bank.openCheckingAccount("Sabo",500);
+
+        assertThrows(TooManyAccountsException.class,
+                () -> bank.openCheckingAccount("Sabo",500));
+
+        assertEquals(4,bank.getAllAccounts().size());
     }
 }
