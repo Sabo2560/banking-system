@@ -11,6 +11,7 @@ import io.github.sabo2560.bank.service.Bank;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Scanner;
 
 public class App {
@@ -154,6 +155,7 @@ public class App {
         System.out.println("3. Transactions of an account by type");
         System.out.println("4. Owner names");
         System.out.println("5. Total deposited to an account");
+        System.out.println("6. Accounts by type");
         String choice = readText(scanner, "Choose: ");
 
         switch (choice) {
@@ -162,7 +164,23 @@ public class App {
             case "3" -> reportTransactionsByType(bank, scanner);
             case "4" -> reportOwnerNames(bank);
             case "5" -> reportTotalDeposited(bank, scanner);
+            case "6" -> reportAccountsByType(bank);
             default -> System.out.println("Invalid option");
+        }
+    }
+
+    private static void reportAccountsByType(Bank bank) {
+
+        Map<String, List<Account>> byType = bank.getAccountsByType();
+        if (byType.isEmpty()){
+            System.out.println("No accounts yet");
+            return;
+        }
+        for (Map.Entry<String, List<Account>> entry : byType.entrySet()) {
+            System.out.println(entry.getKey() + ":");
+            for (Account account : entry.getValue()){
+                System.out.println("-> | " + account);
+            }
         }
     }
 
