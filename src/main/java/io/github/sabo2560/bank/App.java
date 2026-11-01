@@ -9,6 +9,7 @@ import io.github.sabo2560.bank.model.Transaction;
 import io.github.sabo2560.bank.model.TransactionType;
 import io.github.sabo2560.bank.service.Bank;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -75,20 +76,20 @@ public class App {
         return scanner.nextLine().trim();
     }
 
-    private static double readAmount(Scanner scanner, String prompt) {
-        return Double.parseDouble(readText(scanner, prompt));
+    private static BigDecimal readAmount(Scanner scanner, String prompt) {
+        return new BigDecimal(readText(scanner, prompt));
     }
 
     private static void openSavings(Bank bank, Scanner scanner) {
         String owner = readText(scanner, "Owner name: ");
-        double deposit = readAmount(scanner, "Amount to Deposit: ");
+        BigDecimal deposit = readAmount(scanner, "Amount to Deposit: ");
         Account savingOpened = bank.openSavingsAccount(owner, deposit);
         System.out.println("Opened: " + savingOpened);
     }
 
     private static void openChecking(Bank bank, Scanner scanner) {
         String owner = readText(scanner, "Owner name: ");
-        double deposit = readAmount(scanner, "Amount to Deposit: ");
+        BigDecimal deposit = readAmount(scanner, "Amount to Deposit: ");
 
         Account checkingOpened = bank.openCheckingAccount(owner, deposit);
         System.out.println("Opened: " + checkingOpened);
@@ -96,14 +97,14 @@ public class App {
 
     private static void deposit(Bank bank, Scanner scanner) {
         String number = readText(scanner, "Account Number: ");
-        double deposit = readAmount(scanner, "Amount to Deposit: ");
+        BigDecimal deposit = readAmount(scanner, "Amount to Deposit: ");
         bank.deposit(number, deposit);
         System.out.printf(Locale.US, "New Balance: %.2f%n", bank.findAccount(number).getBalance());
     }
 
     private static void withdraw(Bank bank, Scanner scanner) throws InsufficientFundsException {
         String number = readText(scanner, "Account Number: ");
-        double withdraw = readAmount(scanner, "Amount to withdraw: ");
+        BigDecimal withdraw = readAmount(scanner, "Amount to withdraw: ");
         bank.withdraw(number, withdraw);
         System.out.printf(Locale.US, "New Balance: %.2f%n", bank.findAccount(number).getBalance());
     }
@@ -111,7 +112,7 @@ public class App {
     private static void transfer(Bank bank, Scanner scanner) throws InsufficientFundsException {
         String fromNumber = readText(scanner, "Sender Account Number: ");
         String toNumber = readText(scanner, "Receivers Account Number: ");
-        double transfer = readAmount(scanner, "Amount to transfer: ");
+        BigDecimal transfer = readAmount(scanner, "Amount to transfer: ");
         bank.transfer(fromNumber, toNumber, transfer);
         System.out.printf(Locale.US, "%s new balance: %.2f%n", fromNumber, bank.findAccount(fromNumber).getBalance());
         System.out.printf(Locale.US, "%s new balance: %.2f%n", toNumber, bank.findAccount(toNumber).getBalance());
@@ -185,7 +186,7 @@ public class App {
     }
 
     private static void reportAccountsBelow(Bank bank, Scanner scanner) {
-        double threshold = readAmount(scanner, "Show accounts below: ");
+        BigDecimal threshold = readAmount(scanner, "Show accounts below: ");
         List<Account> accounts = bank.getAccountsBelow(threshold);
         if (accounts.isEmpty()) {
             System.out.println("No accounts below that balance");

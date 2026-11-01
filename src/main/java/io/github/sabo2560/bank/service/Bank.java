@@ -6,6 +6,7 @@ import io.github.sabo2560.bank.exception.TooManyAccountsException;
 import io.github.sabo2560.bank.model.*;
 import io.github.sabo2560.bank.exception.AccountNotFoundException;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,14 +19,14 @@ public class Bank {
         this.name = ConfigReader.get("bank.name");
     }
 
-    public Account openSavingsAccount(String owner, double initialDeposit) {
+    public Account openSavingsAccount(String owner, BigDecimal initialDeposit) {
         checkAccountLimit(owner);
         SavingsAccount savingAccount = new SavingsAccount(owner, initialDeposit);
         accounts.put(savingAccount.getAccountNumber(), savingAccount);
         return savingAccount;
     }
 
-    public Account openCheckingAccount(String owner, double initialDeposit) {
+    public Account openCheckingAccount(String owner, BigDecimal initialDeposit) {
         checkAccountLimit(owner);
         CheckingAccount checkingAccount = new CheckingAccount(owner, initialDeposit);
         accounts.put(checkingAccount.getAccountNumber(), checkingAccount);
@@ -46,19 +47,19 @@ public class Bank {
         return name;
     }
 
-    public void deposit(String number, double amount) {
+    public void deposit(String number, BigDecimal amount) {
         Account account = findAccount(number);
         account.deposit(amount);
     }
 
-    public void withdraw(String number, double amount) throws InsufficientFundsException {
+    public void withdraw(String number, BigDecimal amount) throws InsufficientFundsException {
         Account account = findAccount(number);
 
         account.withdraw(amount);
 
     }
 
-    public void transfer(String fromNumber, String toNumber, double amount) throws InsufficientFundsException {
+    public void transfer(String fromNumber, String toNumber, BigDecimal amount) throws InsufficientFundsException {
         Account fromAccount = findAccount(fromNumber);
         Account toAccount = findAccount(toNumber);
 
@@ -71,10 +72,10 @@ public class Bank {
         for (Account account : accounts.values()) {
 
             if (account instanceof InterestBearing ib) {
-                double prior = account.getBalance();
+                BigDecimal prior = account.getBalance();
                 ib.applyInterest();
-                double after = account.getBalance();
-                if (after > prior) {
+                BigDecimal after = account.getBalance();
+                if (after.compareTo(prior) >0) {
                     count++;
                 }
             }
@@ -88,18 +89,18 @@ public class Bank {
         return list;
     }
 
-    public List<Account> getAccountsBelow(double threshold) {
+    public List<Account> getAccountsBelow(BigDecimal threshold) {
         List<Account> collectedList = accounts.values().stream()
-                .filter(a -> a.getBalance() < threshold)
+                .filter(a -> a.getBalance().compareTo(threshold) < 0)
                 .sorted(Comparator.comparing(Account::getBalance))
                 .collect(Collectors.toList());
         return collectedList;
     }
 
-    public double getTotalBalance() {
+    public BigDecimal getTotalBalance() {
         return accounts.values().stream()
-                .mapToDouble(Account::getBalance)
-                .sum();
+                .map(Account::getBalance)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public List<Transaction> getTransactions(String number, TransactionType type) {
@@ -114,11 +115,11 @@ public class Bank {
                 .toList();
     }
 
-    public double getTotalDeposited(String number) {
+    public BigDecimal getTotalDeposited(String number) {
         return findAccount(number).getTransactions().stream()
                 .filter(t -> t.getType() == TransactionType.DEPOSIT || t.getType() == TransactionType.TRANSFER_IN)
-                .mapToDouble(Transaction::getAmount)
-                .sum();
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
     private void checkAccountLimit(String owner) {
         int limit =  ConfigReader.getInt("max.accounts.per.owner");
