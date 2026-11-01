@@ -2,16 +2,18 @@ package io.github.sabo2560.bank.model;
 
 import io.github.sabo2560.bank.config.ConfigReader;
 
-public class CheckingAccount extends Account{
-    private final double overdraftLimit = ConfigReader.getDouble("checking.overdraft.limit");
+import java.math.BigDecimal;
 
-    public CheckingAccount(String ownerName, double initialDeposit){
+public class CheckingAccount extends Account{
+    private final BigDecimal overdraftLimit = ConfigReader.getBigDecimal("checking.overdraft.limit");
+
+    public CheckingAccount(String ownerName, BigDecimal initialDeposit){
         super(ownerName,initialDeposit);
     }
 
     @Override
-    protected double getAvailableToWithdraw() {
-        return getBalance() + overdraftLimit;
+    protected BigDecimal getAvailableToWithdraw() {
+        return getBalance().add(overdraftLimit);
     }
 
     @Override

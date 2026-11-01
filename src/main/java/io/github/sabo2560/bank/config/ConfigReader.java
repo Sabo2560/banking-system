@@ -3,6 +3,7 @@ import io.github.sabo2560.bank.exception.ConfigException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Properties;
 
 public class ConfigReader {
@@ -37,6 +38,17 @@ public class ConfigReader {
         try{
 
             return  Double.parseDouble(text);
+
+        } catch (NumberFormatException e) {
+            throw new ConfigException("Config value for " + key + " is not a number: " + text, e);
+        }
+    }
+
+    public static BigDecimal getBigDecimal(String key){
+        String text = get(key);
+        try{
+
+            return  new BigDecimal(text);
 
         } catch (NumberFormatException e) {
             throw new ConfigException("Config value for " + key + " is not a number: " + text, e);

@@ -3,34 +3,44 @@ package io.github.sabo2560.bank.model;
 import io.github.sabo2560.bank.exception.InsufficientFundsException;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CheckingAccountTest {
 
     @Test
     void blankOwnerNameIsRejected() {
-
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> new CheckingAccount("  ", 1000));
+                () -> new CheckingAccount("  ", new BigDecimal("1000")));
 
         assertEquals("Owner name must be filled!", e.getMessage());
     }
 
     @Test
     void withdrawingIntoOverdraftSucceeds() throws InsufficientFundsException {
-        CheckingAccount acc = new CheckingAccount("Sabotest", 200);
-        acc.withdraw(700);
-        assertEquals(-500.00, acc.getBalance(), 0.001);
+        CheckingAccount account = new CheckingAccount("Sabo", new BigDecimal("200"));
+
+        account.withdraw(new BigDecimal("700"));
+
+        assertMoney("-500", account.getBalance());
     }
 
     @Test
     void withdrawingBeyondOverdraftIsRejected() throws InsufficientFundsException {
-        CheckingAccount acc = new CheckingAccount("Sabotest", 200);
-        acc.withdraw(700);
-        assertEquals(-500.00, acc.getBalance(), 0.001);
+        CheckingAccount account = new CheckingAccount("Sabo", new BigDecimal("200"));
+        account.withdraw(new BigDecimal("700"));
+        assertMoney("-500", account.getBalance());
+
         InsufficientFundsException e = assertThrows(InsufficientFundsException.class,
-                () -> acc.withdraw(0.01));
-        assertEquals(0.00, e.getAvailable(), 0.001);
-        assertEquals(-500, acc.getBalance(), 0.001);
+                () -> account.withdraw(new BigDecimal("0.01")));
+
+        assertMoney("0", e.getAvailable());
+        assertMoney("-500", account.getBalance());
+    }
+
+    private static void assertMoney(String expected, BigDecimal actual) {
+        assertEquals(0, new BigDecimal(expected).compareTo(actual),
+                "expected " + expected + " but was " + actual);
     }
 }

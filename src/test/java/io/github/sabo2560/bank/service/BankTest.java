@@ -4,15 +4,14 @@ import io.github.sabo2560.bank.exception.AccountNotFoundException;
 import io.github.sabo2560.bank.exception.InsufficientFundsException;
 import io.github.sabo2560.bank.exception.TooManyAccountsException;
 import io.github.sabo2560.bank.model.Account;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.*;
 
 class BankTest {
 
@@ -23,10 +22,9 @@ class BankTest {
     @BeforeEach
     void setUp() {
         bank = new Bank();
-        savings = bank.openSavingsAccount("Sabo", 1000);
-        checking = bank.openCheckingAccount("Amine", 200);
+        savings = bank.openSavingsAccount("Sabo", new BigDecimal("1000"));
+        checking = bank.openCheckingAccount("Amine", new BigDecimal("200"));
     }
-
 
     @Test
     void findingUnknownAccountThrows() {
@@ -37,88 +35,89 @@ class BankTest {
 
     @Test
     void transferMovesMoneyBetweenAccounts() throws InsufficientFundsException {
-        bank.transfer(savings.getAccountNumber(), checking.getAccountNumber(), 300);
-        assertEquals(700, savings.getBalance(), 0.001);
-        assertEquals(500, checking.getBalance(), 0.001);
+        bank.transfer(savings.getAccountNumber(), checking.getAccountNumber(), new BigDecimal("300"));
+        assertMoney("700", savings.getBalance());
+        assertMoney("500", checking.getBalance());
     }
 
     @Test
     void transferWithInsufficientFundsChangesNothing() {
         assertThrows(InsufficientFundsException.class,
-                () -> bank.transfer(savings.getAccountNumber(), checking.getAccountNumber(), 5000));
-        assertEquals(1000.00, savings.getBalance(), 0.001);
-        assertEquals(200.00, checking.getBalance(), 0.001);
-
+                () -> bank.transfer(savings.getAccountNumber(), checking.getAccountNumber(), new BigDecimal("5000")));
+        assertMoney("1000", savings.getBalance());
+        assertMoney("200", checking.getBalance());
     }
 
     @Test
     void transferToUnknownAccountChangesNothing() {
         AccountNotFoundException e = assertThrows(AccountNotFoundException.class,
-                () -> bank.transfer(savings.getAccountNumber(), "ACC-9999", 500));
+                () -> bank.transfer(savings.getAccountNumber(), "ACC-9999", new BigDecimal("500")));
         assertEquals("Account not found: ACC-9999", e.getMessage());
-        assertEquals(1000, savings.getBalance(), 0.001);
+        assertMoney("1000", savings.getBalance());
     }
 
     @Test
     void accountsBelowReturnsOnlyMatchingAccounts() {
-        assertEquals(List.of(checking), bank.getAccountsBelow(500));
+        assertEquals(List.of(checking), bank.getAccountsBelow(new BigDecimal("500")));
     }
 
     @Test
     void totalBalanceSumsAllAccounts() {
-        assertEquals(1200.0, bank.getTotalBalance(), 0.001);
+        assertMoney("1200", bank.getTotalBalance());
     }
 
     @Test
     void ownerNamesAreDistinctAndSorted() {
-        bank.openCheckingAccount("Sabo", 50);
+        bank.openCheckingAccount("Sabo", new BigDecimal("50"));
         assertEquals(List.of("Amine", "Sabo"), bank.getOwnerNames());
     }
 
     @Test
     void totalDepositedIncludesTransfersIn() throws InsufficientFundsException {
-        bank.transfer(savings.getAccountNumber(), checking.getAccountNumber(), 300);
-        assertEquals(500, bank.getTotalDeposited(checking.getAccountNumber()), 0.001);
+        bank.transfer(savings.getAccountNumber(), checking.getAccountNumber(), new BigDecimal("300"));
+        assertMoney("500", bank.getTotalDeposited(checking.getAccountNumber()));
     }
 
     @Test
     void ownerCanOpenUpToTheLimit() {
+        bank.openSavingsAccount("Sabo", new BigDecimal("500"));
+        bank.openCheckingAccount("Sabo", new BigDecimal("500"));
 
-        bank.openSavingsAccount("Sabo", 500);
-        bank.openCheckingAccount("Sabo",500);
-
-        assertEquals(4,bank.getAllAccounts().size());
+        assertEquals(4, bank.getAllAccounts().size());
     }
 
     @Test
     void openingBeyondTheLimitIsRejected() {
-
-        bank.openSavingsAccount("Sabo",500);
-        bank.openCheckingAccount("Sabo",500);
+        bank.openSavingsAccount("Sabo", new BigDecimal("500"));
+        bank.openCheckingAccount("Sabo", new BigDecimal("500"));
 
         TooManyAccountsException e = assertThrows(TooManyAccountsException.class,
-                () -> bank.openCheckingAccount("Sabo",500));
+                () -> bank.openCheckingAccount("Sabo", new BigDecimal("500")));
 
-       assertEquals("Sabo already has a maximum of 3 accounts", e.getMessage());
+        assertEquals("Sabo already has a maximum of 3 accounts", e.getMessage());
     }
 
     @Test
     void rejectedAccountIsNotStored() {
-
-        bank.openSavingsAccount("Sabo",500);
-        bank.openCheckingAccount("Sabo",500);
+        bank.openSavingsAccount("Sabo", new BigDecimal("500"));
+        bank.openCheckingAccount("Sabo", new BigDecimal("500"));
 
         assertThrows(TooManyAccountsException.class,
-                () -> bank.openCheckingAccount("Sabo",500));
+                () -> bank.openCheckingAccount("Sabo", new BigDecimal("500")));
 
-        assertEquals(4,bank.getAllAccounts().size());
+        assertEquals(4, bank.getAllAccounts().size());
     }
 
     @Test
     void accountsByTypeGroupsSavingsAndChecking() {
-        Map<String,List<Account>> byType = bank.getAccountsByType();
-        assertEquals(List.of(savings),byType.get("SAVINGS"));
-        assertEquals(List.of(checking),byType.get("CHECKING"));
-        assertEquals(2 , byType.size());
+        Map<String, List<Account>> byType = bank.getAccountsByType();
+        assertEquals(List.of(savings), byType.get("SAVINGS"));
+        assertEquals(List.of(checking), byType.get("CHECKING"));
+        assertEquals(2, byType.size());
+    }
+
+    private static void assertMoney(String expected, BigDecimal actual) {
+        assertEquals(0, new BigDecimal(expected).compareTo(actual),
+                "expected " + expected + " but was " + actual);
     }
 }

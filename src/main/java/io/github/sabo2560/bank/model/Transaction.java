@@ -1,15 +1,16 @@
 package io.github.sabo2560.bank.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
 public class Transaction {
     private final TransactionType type;
-    private final double amount;
-    private final double balanceAfter;
+    private final BigDecimal amount;
+    private final BigDecimal balanceAfter;
     private final LocalDateTime timestamp = LocalDateTime.now();
 
-    Transaction(TransactionType type, double amount, double balanceAfter){
+    Transaction(TransactionType type, BigDecimal amount, BigDecimal balanceAfter){
 
         this.type = type;
         this.amount = amount;
@@ -19,10 +20,10 @@ public class Transaction {
     public TransactionType getType() {
         return type;
     }
-    public double getBalanceAfter(){
+    public BigDecimal getBalanceAfter(){
         return balanceAfter;
     }
-    public double getAmount(){
+    public BigDecimal getAmount(){
         return amount;
     }
     public LocalDateTime getTimestamp(){
