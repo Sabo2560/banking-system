@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 class BankTest {
@@ -111,5 +112,13 @@ class BankTest {
                 () -> bank.openCheckingAccount("Sabo",500));
 
         assertEquals(4,bank.getAllAccounts().size());
+    }
+
+    @Test
+    void accountsByTypeGroupsSavingsAndChecking() {
+        Map<String,List<Account>> byType = bank.getAccountsByType();
+        assertEquals(List.of(savings),byType.get("SAVINGS"));
+        assertEquals(List.of(checking),byType.get("CHECKING"));
+        assertEquals(2 , byType.size());
     }
 }

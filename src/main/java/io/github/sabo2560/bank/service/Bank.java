@@ -131,4 +131,9 @@ public class Bank {
 
     }
 
+    public Map<String, List<Account>> getAccountsByType() {
+
+        return accounts.values().stream().collect(Collectors.groupingBy(Account::getAccountType));
+    }
+
 }
